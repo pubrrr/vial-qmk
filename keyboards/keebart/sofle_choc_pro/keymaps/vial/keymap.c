@@ -27,3 +27,54 @@ const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][NUM_DIRECTIONS] = {
     [0] = {ENCODER_CCW_CW(KC_VOLD, KC_VOLU), ENCODER_CCW_CW(KC_MPRV, KC_MNXT)},
 };
 #endif
+
+bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
+    switch(get_highest_layer(layer_state|default_layer_state)) {
+        case 1:
+            rgb_matrix_set_color_all(RGB_GOLD);
+            break;
+        case 2:
+            rgb_matrix_set_color_all(RGB_BLUE);
+            break;
+        case 3:
+            rgb_matrix_set_color_all(RGB_RED);
+            break;
+        case 4:
+            rgb_matrix_set_color_all(RGB_PURPLE);
+            break;
+        case 5:
+            rgb_matrix_set_color_all(RGB_CYAN);
+            break;
+        default:
+            break;
+    }
+
+    if (is_caps_word_on()) {
+        for (uint8_t i = led_min; i < led_max; i = i + 2) {
+            rgb_matrix_set_color(i, RGB_WHITE);
+        }
+    }
+
+    return false;
+}
+
+bool caps_word_press_user(uint16_t keycode) {
+    switch (keycode) {
+        // Keycodes that continue Caps Word, with shift applied.
+        case KC_A ... KC_Z:
+        case KC_MINS:
+        case KC_SLASH: // `-` on German keyboard
+            add_weak_mods(MOD_BIT(KC_LSFT));  // Apply shift to next key.
+            return true;
+
+        // Keycodes that continue Caps Word, without shifting.
+        case KC_1 ... KC_0:
+        case KC_BSPC:
+        case KC_DEL:
+        case KC_UNDS:
+            return true;
+
+        default:
+            return false;  // Deactivate Caps Word.
+    }
+}
