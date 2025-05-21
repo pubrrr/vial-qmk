@@ -29,31 +29,43 @@ const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][NUM_DIRECTIONS] = {
 #endif
 
 bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
-    switch(get_highest_layer(layer_state|default_layer_state)) {
-        case 1:
-            rgb_matrix_set_color_all(RGB_GOLD);
-            break;
-        case 2:
-            rgb_matrix_set_color_all(RGB_BLUE);
-            break;
-        case 3:
-            rgb_matrix_set_color_all(RGB_RED);
-            break;
-        case 4:
-            rgb_matrix_set_color_all(RGB_PURPLE);
-            break;
-        case 5:
-            rgb_matrix_set_color_all(RGB_CYAN);
-            break;
-        default:
-            break;
-    }
-
     if (is_caps_word_on()) {
         for (uint8_t i = led_min; i < led_max; i = i + 2) {
             rgb_matrix_set_color(i, RGB_WHITE);
         }
+        return false;
     }
+
+    hsv_t hsv = {0, 255, 255};
+    switch(get_highest_layer(layer_state|default_layer_state)) {
+        case 1:
+            hsv = (hsv_t){128, 255, 130}; // cyan
+            break;
+        case 2:
+            hsv = (hsv_t){85, 255, 130}; // green
+            break;
+        case 3:
+            hsv = (hsv_t){36, 255, 130}; // gold
+            break;
+        case 4:
+            hsv = (hsv_t){170, 255, 130}; // blue
+            break;
+        case 5:
+            hsv = (hsv_t){0, 255, 130}; // red
+            break;
+        case 6:
+            hsv = (hsv_t){191, 255, 130}; // purple
+            break;
+        case 7:
+            hsv = (hsv_t){106, 255, 130}; // springgreen
+            break;
+        default:
+            return false;
+    }
+
+    hsv.v = 130;
+    rgb_t rgb = hsv_to_rgb(hsv);
+    rgb_matrix_set_color_all(rgb.r, rgb.g, rgb.b);
 
     return false;
 }
