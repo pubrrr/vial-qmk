@@ -90,3 +90,130 @@ bool caps_word_press_user(uint16_t keycode) {
             return false;  // Deactivate Caps Word.
     }
 }
+
+/* ------------- rotary encoder stuff ---------------- */
+// https://www.reddit.com/r/MechanicalKeyboards/comments/s52e51/added_alttab_to_my_rotary_encoder_on_my_qmk_board/
+bool is_alt_tab_active = false;
+uint16_t alt_tab_timer = 0;
+
+bool is_ctrl_tab_active = false;
+uint16_t ctrl_tab_timer = 0;
+
+void matrix_scan_user(void) {
+  if (is_alt_tab_active) {
+    if (timer_elapsed(alt_tab_timer) > 800) {
+      unregister_code(KC_LALT);
+      is_alt_tab_active = false;
+    }
+  }
+  if (is_ctrl_tab_active) {
+    if (timer_elapsed(ctrl_tab_timer) > 800) {
+      unregister_code(KC_LCTL);
+      is_ctrl_tab_active = false;
+    }
+  }
+};
+
+bool encoder_update_user(uint8_t index, bool clockwise) {
+    if (get_highest_layer(layer_state|default_layer_state) == 5) {
+        register_code(KC_LALT);
+        if (clockwise) {
+            tap_code(KC_RIGHT);
+        } else {
+            tap_code(KC_LEFT);
+        }
+        unregister_code(KC_LALT);
+    } else if (get_highest_layer(layer_state|default_layer_state) == 3) {
+        if (clockwise) {
+            tap_code(KC_UP);
+            tap_code(KC_UP);
+            tap_code(KC_UP);
+            tap_code(KC_UP);
+            tap_code(KC_UP);
+            tap_code(KC_UP);
+            tap_code(KC_UP);
+            tap_code(KC_UP);
+            tap_code(KC_UP);
+            tap_code(KC_UP);
+            tap_code(KC_UP);
+            tap_code(KC_UP);
+            tap_code(KC_UP);
+            tap_code(KC_UP);
+            tap_code(KC_UP);
+            tap_code(KC_UP);
+            tap_code(KC_UP);
+            tap_code(KC_UP);
+            tap_code(KC_UP);
+            tap_code(KC_UP);
+        } else {
+            tap_code(KC_DOWN);
+            tap_code(KC_DOWN);
+            tap_code(KC_DOWN);
+            tap_code(KC_DOWN);
+            tap_code(KC_DOWN);
+            tap_code(KC_DOWN);
+            tap_code(KC_DOWN);
+            tap_code(KC_DOWN);
+            tap_code(KC_DOWN);
+            tap_code(KC_DOWN);
+            tap_code(KC_DOWN);
+            tap_code(KC_DOWN);
+            tap_code(KC_DOWN);
+            tap_code(KC_DOWN);
+            tap_code(KC_DOWN);
+            tap_code(KC_DOWN);
+            tap_code(KC_DOWN);
+            tap_code(KC_DOWN);
+            tap_code(KC_DOWN);
+            tap_code(KC_DOWN);
+        }
+    } else if (get_highest_layer(layer_state|default_layer_state) > 2) {
+        if (clockwise) {
+            tap_code(KC_UP);
+            tap_code(KC_UP);
+            tap_code(KC_UP);
+            tap_code(KC_UP);
+            tap_code(KC_UP);
+            tap_code(KC_UP);
+            tap_code(KC_UP);
+            tap_code(KC_UP);
+            tap_code(KC_UP);
+            tap_code(KC_UP);
+        } else {
+            tap_code(KC_DOWN);
+            tap_code(KC_DOWN);
+            tap_code(KC_DOWN);
+            tap_code(KC_DOWN);
+            tap_code(KC_DOWN);
+            tap_code(KC_DOWN);
+            tap_code(KC_DOWN);
+            tap_code(KC_DOWN);
+            tap_code(KC_DOWN);
+            tap_code(KC_DOWN);
+        }
+    } else if (index == 1) {
+        register_code(KC_LALT);
+        is_alt_tab_active = true;
+        if (clockwise) {
+            tap_code(KC_TAB);
+        } else {
+            register_code(KC_LSFT);
+            tap_code(KC_TAB);
+            unregister_code(KC_LSFT);
+        }
+        alt_tab_timer = timer_read();
+    } else if (index == 0) {
+        register_code(KC_LCTL);
+        is_ctrl_tab_active = true;
+        if (clockwise) {
+            tap_code(KC_TAB);
+        } else {
+            register_code(KC_LSFT);
+            tap_code(KC_TAB);
+            unregister_code(KC_LSFT);
+        }
+        ctrl_tab_timer = timer_read();
+    }
+    return false;
+};
+/* ------------- rotary encoder stuff ---------------- */
