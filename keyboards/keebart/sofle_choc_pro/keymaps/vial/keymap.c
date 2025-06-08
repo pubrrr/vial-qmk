@@ -57,7 +57,7 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
             hsv = (hsv_t){191, 255, 130}; // purple
             break;
         case 7:
-            hsv = (hsv_t){106, 255, 130}; // springgreen
+            hsv = (hsv_t){201, 255, 130}; // magenta
             break;
         default:
             return false;
