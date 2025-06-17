@@ -59,6 +59,12 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
         case 7:
             hsv = (hsv_t){201, 255, 130}; // magenta
             break;
+        case 8:
+            hsv = (hsv_t){148, 255, 130}; // azure
+            break;
+        case 9:
+            hsv = (hsv_t){21, 255, 130}; // orange
+            break;
         default:
             return false;
     }
@@ -217,3 +223,56 @@ bool encoder_update_user(uint8_t index, bool clockwise) {
     return false;
 };
 /* ------------- rotary encoder stuff ---------------- */
+
+uint16_t get_alt_repeat_key_keycode_user(uint16_t keycode, uint8_t mods) {
+    switch (keycode) {
+        case KC_E: return KC_A;
+        case KC_O: return KC_A;
+        case KC_U: return KC_I;
+        case KC_I: return KC_U;
+        case KC_S: return KC_Z; // Y in German
+    }
+
+    return KC_NO;  // Disable all others
+}
+
+bool remember_last_key_user(uint16_t keycode, keyrecord_t* record, uint8_t* remembered_mods) {
+    switch (keycode) {
+        case KC_F13:
+            return false;
+        case LT(5,KC_F13):
+            return false;
+        case LT(5,KC_F14):
+            return false;
+        case LCTL_T(KC_E):
+            set_last_keycode(KC_E);
+            return false;
+        case LSFT_T(KC_I):
+            set_last_keycode(KC_I);
+            return false;
+        case LALT_T(KC_S):
+            set_last_keycode(KC_S);
+            return false;
+        default:
+            return true;
+    }
+}
+
+bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+    switch (keycode) {
+        case LT(5,KC_F13):
+            if (record->tap.count) {
+                alt_repeat_key_invoke(&record->event);
+                return false;
+            }
+            break;
+        case LT(5,KC_F14):
+            if (record->tap.count) {
+                repeat_key_invoke(&record->event);
+                return false;
+            }
+            break;
+    }
+
+    return true;
+}
