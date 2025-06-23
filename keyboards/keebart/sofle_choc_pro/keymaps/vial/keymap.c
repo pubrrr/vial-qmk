@@ -224,13 +224,25 @@ bool encoder_update_user(uint8_t index, bool clockwise) {
 };
 /* ------------- rotary encoder stuff ---------------- */
 
+enum my_keycodes {
+    MACRO_SCH = SAFE_RANGE
+};
+
 uint16_t get_alt_repeat_key_keycode_user(uint16_t keycode, uint8_t mods) {
     switch (keycode) {
-        case KC_E: return KC_A;
-        case KC_O: return KC_A;
+        case KC_R: return KC_R;
+        case KC_C: return KC_H;
+        case KC_H: return KC_L;
+        case KC_W: return KC_N;
+        case KC_E: return KC_O;
+        case KC_O: return KC_E;
         case KC_U: return KC_I;
         case KC_I: return KC_U;
-        case KC_S: return KC_Z; // Y in German
+        case KC_A: return KC_Z; // Y in German
+        case KC_Z: return KC_A; // Y in German
+        case KC_S: return MACRO_SCH;
+
+        case KC_DOT: return LSFT(KC_7); // slash
     }
 
     return KC_NO;  // Disable all others
@@ -242,16 +254,19 @@ bool remember_last_key_user(uint16_t keycode, keyrecord_t* record, uint8_t* reme
             return false;
         case LT(5,KC_F13):
             return false;
-        case LT(5,KC_F14):
+        case LT(6,KC_F14):
             return false;
-        case LCTL_T(KC_E):
-            set_last_keycode(KC_E);
+        case LT(4,KC_R):
+            set_last_keycode(KC_R);
             return false;
-        case LSFT_T(KC_I):
+        case LCTL_T(KC_I):
             set_last_keycode(KC_I);
             return false;
-        case LALT_T(KC_S):
-            set_last_keycode(KC_S);
+        case LSFT_T(KC_E):
+            set_last_keycode(KC_E);
+            return false;
+        case LALT_T(KC_A):
+            set_last_keycode(KC_A);
             return false;
         default:
             return true;
@@ -266,12 +281,16 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 return false;
             }
             break;
-        case LT(5,KC_F14):
+        case LT(6,KC_F14):
             if (record->tap.count) {
                 repeat_key_invoke(&record->event);
                 return false;
             }
             break;
+        case MACRO_SCH:
+            if (record->event.pressed) {
+                SEND_STRING("ch");
+            }
     }
 
     return true;
