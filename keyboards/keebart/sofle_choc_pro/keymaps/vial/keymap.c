@@ -28,14 +28,17 @@ const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][NUM_DIRECTIONS] = {
 };
 #endif
 
-bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
-    if (is_caps_word_on()) {
-        for (uint8_t i = led_min; i < led_max; i = i + 2) {
-            rgb_matrix_set_color(i, RGB_WHITE);
-        }
-        return false;
-    }
+bool osm_shift_active = false;
 
+void oneshot_mods_changed_user(uint8_t mods) {
+    if (mods & MOD_MASK_SHIFT) {
+        osm_shift_active = true;
+    } else {
+        osm_shift_active = false;
+    }
+}
+
+bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
     hsv_t hsv = {0, 255, 255};
     switch(get_highest_layer(layer_state|default_layer_state)) {
         case 1:
@@ -66,6 +69,25 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
             hsv = (hsv_t){21, 255, 130}; // orange
             break;
         default:
+            if (osm_shift_active) {
+                rgb_matrix_set_color(3, RGB_WHITE);
+                rgb_matrix_set_color(10, RGB_WHITE);
+                rgb_matrix_set_color(13, RGB_WHITE);
+                rgb_matrix_set_color(33, RGB_WHITE);
+                rgb_matrix_set_color(40, RGB_WHITE);
+                rgb_matrix_set_color(43, RGB_WHITE);
+            }
+            if (is_caps_word_on()) {
+                rgb_matrix_set_color(3, RGB_WHITE);
+                rgb_matrix_set_color(4, RGB_WHITE);
+                rgb_matrix_set_color(5, RGB_WHITE);
+                rgb_matrix_set_color(6, RGB_WHITE);
+
+                rgb_matrix_set_color(33, RGB_WHITE);
+                rgb_matrix_set_color(34, RGB_WHITE);
+                rgb_matrix_set_color(35, RGB_WHITE);
+                rgb_matrix_set_color(36, RGB_WHITE);
+            }
             return false;
     }
 
@@ -73,6 +95,26 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
     rgb_t rgb = hsv_to_rgb(hsv);
     rgb_matrix_set_color_all(rgb.r, rgb.g, rgb.b);
 
+    if (osm_shift_active) {
+        rgb_matrix_set_color(3, RGB_WHITE);
+        rgb_matrix_set_color(10, RGB_WHITE);
+        rgb_matrix_set_color(13, RGB_WHITE);
+        rgb_matrix_set_color(33, RGB_WHITE);
+        rgb_matrix_set_color(40, RGB_WHITE);
+        rgb_matrix_set_color(43, RGB_WHITE);
+    }
+    if (is_caps_word_on()) {
+        rgb_matrix_set_color(3, RGB_WHITE);
+        rgb_matrix_set_color(4, RGB_WHITE);
+        rgb_matrix_set_color(5, RGB_WHITE);
+        rgb_matrix_set_color(6, RGB_WHITE);
+
+        rgb_matrix_set_color(33, RGB_WHITE);
+        rgb_matrix_set_color(34, RGB_WHITE);
+        rgb_matrix_set_color(35, RGB_WHITE);
+        rgb_matrix_set_color(36, RGB_WHITE);
+        return false;
+    }
     return false;
 }
 
@@ -241,6 +283,7 @@ uint16_t get_alt_repeat_key_keycode_user(uint16_t keycode, uint8_t mods) {
         case KC_A: return KC_Z; // Y in German
         case KC_Z: return KC_A; // Y in German
         case KC_S: return MACRO_SCH;
+        case KC_K: return KC_L;
 
         case KC_DOT: return LSFT(KC_7); // slash
     }
