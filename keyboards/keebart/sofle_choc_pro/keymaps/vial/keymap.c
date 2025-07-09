@@ -288,6 +288,7 @@ uint16_t get_alt_repeat_key_keycode_user(uint16_t keycode, uint8_t mods) {
         case KC_K: return KC_L;
         case KC_D: return KC_G;
         case KC_F: return KC_Y; // Z in German
+        case KC_QUOTE: return KC_U; // Ä in German
         case KC_N: return MACRO_NPM;
         case MACRO_NPM: return MACRO_RUN;
 
