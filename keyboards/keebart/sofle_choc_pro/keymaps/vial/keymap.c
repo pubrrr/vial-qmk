@@ -266,37 +266,6 @@ bool encoder_update_user(uint8_t index, bool clockwise) {
 };
 /* ------------- rotary encoder stuff ---------------- */
 
-enum my_keycodes {
-    MACRO_SCH = SAFE_RANGE,
-    MACRO_NPM,
-    MACRO_RUN
-};
-
-uint16_t get_alt_repeat_key_keycode_user(uint16_t keycode, uint8_t mods) {
-    switch (keycode) {
-        case KC_R: return KC_R;
-        case KC_C: return KC_H;
-        case KC_H: return KC_L;
-        case KC_W: return KC_N;
-        case KC_E: return KC_O;
-        case KC_O: return KC_E;
-        case KC_U: return KC_I;
-        case KC_I: return KC_U;
-        case KC_A: return KC_Z; // Y in German
-        case KC_Z: return KC_A; // Y in German
-        case KC_S: return MACRO_SCH;
-        case KC_K: return KC_L;
-        case KC_D: return KC_G;
-        case KC_F: return KC_Y; // Z in German
-        case KC_QUOTE: return KC_U; // Ä in German
-        case KC_N: return MACRO_NPM;
-        case MACRO_NPM: return MACRO_RUN;
-
-        case KC_DOT: return LSFT(KC_7); // slash
-    }
-
-    return KC_NO;  // Disable all others
-}
 
 bool remember_last_key_user(uint16_t keycode, keyrecord_t* record, uint8_t* remembered_mods) {
     switch (keycode) {
@@ -346,22 +315,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 return false;
             }
             break;
-        case MACRO_SCH:
-            if (record->event.pressed) {
-                SEND_STRING("ch");
-            }
-            return false;
-        case MACRO_NPM:
-            if (record->event.pressed) {
-                SEND_STRING("pm ");
-                set_last_keycode(MACRO_NPM);
-            }
-            return false;
-        case MACRO_RUN:
-            if (record->event.pressed) {
-                SEND_STRING("run ");
-            }
-            return false;
     }
 
     return true;
