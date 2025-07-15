@@ -30,6 +30,9 @@ const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][NUM_DIRECTIONS] = {
 
 bool osm_shift_active = false;
 
+bool is_alt_tab_active = false;
+bool is_ctrl_tab_active = false;
+
 void oneshot_mods_changed_user(uint8_t mods) {
     if (mods & MOD_MASK_SHIFT) {
         osm_shift_active = true;
@@ -88,6 +91,30 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
                 rgb_matrix_set_color(35, RGB_WHITE);
                 rgb_matrix_set_color(36, RGB_WHITE);
             }
+            if (is_alt_tab_active) {
+                rgb_matrix_set_color(3, RGB_RED);
+                rgb_matrix_set_color(4, RGB_GREEN);
+                rgb_matrix_set_color(5, RGB_GREEN);
+                rgb_matrix_set_color(6, RGB_GREEN);
+
+                rgb_matrix_set_color(33, RGB_RED);
+                rgb_matrix_set_color(34, RGB_GREEN);
+                rgb_matrix_set_color(35, RGB_GREEN);
+                rgb_matrix_set_color(36, RGB_GREEN);
+                return false;
+            }
+            if (is_ctrl_tab_active) {
+                rgb_matrix_set_color(3, RGB_RED);
+                rgb_matrix_set_color(4, RGB_BLUE);
+                rgb_matrix_set_color(5, RGB_BLUE);
+                rgb_matrix_set_color(6, RGB_BLUE);
+
+                rgb_matrix_set_color(33, RGB_RED);
+                rgb_matrix_set_color(34, RGB_BLUE);
+                rgb_matrix_set_color(35, RGB_BLUE);
+                rgb_matrix_set_color(36, RGB_BLUE);
+                return false;
+            }
             return false;
     }
 
@@ -113,6 +140,30 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
         rgb_matrix_set_color(34, RGB_WHITE);
         rgb_matrix_set_color(35, RGB_WHITE);
         rgb_matrix_set_color(36, RGB_WHITE);
+        return false;
+    }
+    if (is_alt_tab_active) {
+        rgb_matrix_set_color(3, RGB_RED);
+        rgb_matrix_set_color(4, RGB_GREEN);
+        rgb_matrix_set_color(5, RGB_GREEN);
+        rgb_matrix_set_color(6, RGB_GREEN);
+
+        rgb_matrix_set_color(33, RGB_RED);
+        rgb_matrix_set_color(34, RGB_GREEN);
+        rgb_matrix_set_color(35, RGB_GREEN);
+        rgb_matrix_set_color(36, RGB_GREEN);
+        return false;
+    }
+    if (is_ctrl_tab_active) {
+        rgb_matrix_set_color(3, RGB_RED);
+        rgb_matrix_set_color(4, RGB_BLUE);
+        rgb_matrix_set_color(5, RGB_BLUE);
+        rgb_matrix_set_color(6, RGB_BLUE);
+
+        rgb_matrix_set_color(33, RGB_RED);
+        rgb_matrix_set_color(34, RGB_BLUE);
+        rgb_matrix_set_color(35, RGB_BLUE);
+        rgb_matrix_set_color(36, RGB_BLUE);
         return false;
     }
     return false;
@@ -141,27 +192,6 @@ bool caps_word_press_user(uint16_t keycode) {
 
 /* ------------- rotary encoder stuff ---------------- */
 // https://www.reddit.com/r/MechanicalKeyboards/comments/s52e51/added_alttab_to_my_rotary_encoder_on_my_qmk_board/
-bool is_alt_tab_active = false;
-uint16_t alt_tab_timer = 0;
-
-bool is_ctrl_tab_active = false;
-uint16_t ctrl_tab_timer = 0;
-
-void matrix_scan_user(void) {
-  if (is_alt_tab_active) {
-    if (timer_elapsed(alt_tab_timer) > 800) {
-      unregister_code(KC_LALT);
-      is_alt_tab_active = false;
-    }
-  }
-  if (is_ctrl_tab_active) {
-    if (timer_elapsed(ctrl_tab_timer) > 800) {
-      unregister_code(KC_LCTL);
-      is_ctrl_tab_active = false;
-    }
-  }
-};
-
 bool encoder_update_user(uint8_t index, bool clockwise) {
     if (get_highest_layer(layer_state|default_layer_state) == 5) {
         register_code(KC_LALT);
@@ -171,50 +201,6 @@ bool encoder_update_user(uint8_t index, bool clockwise) {
             tap_code(KC_LEFT);
         }
         unregister_code(KC_LALT);
-    } else if (get_highest_layer(layer_state|default_layer_state) == 3) {
-        if (clockwise) {
-            tap_code(KC_UP);
-            tap_code(KC_UP);
-            tap_code(KC_UP);
-            tap_code(KC_UP);
-            tap_code(KC_UP);
-            tap_code(KC_UP);
-            tap_code(KC_UP);
-            tap_code(KC_UP);
-            tap_code(KC_UP);
-            tap_code(KC_UP);
-            tap_code(KC_UP);
-            tap_code(KC_UP);
-            tap_code(KC_UP);
-            tap_code(KC_UP);
-            tap_code(KC_UP);
-            tap_code(KC_UP);
-            tap_code(KC_UP);
-            tap_code(KC_UP);
-            tap_code(KC_UP);
-            tap_code(KC_UP);
-        } else {
-            tap_code(KC_DOWN);
-            tap_code(KC_DOWN);
-            tap_code(KC_DOWN);
-            tap_code(KC_DOWN);
-            tap_code(KC_DOWN);
-            tap_code(KC_DOWN);
-            tap_code(KC_DOWN);
-            tap_code(KC_DOWN);
-            tap_code(KC_DOWN);
-            tap_code(KC_DOWN);
-            tap_code(KC_DOWN);
-            tap_code(KC_DOWN);
-            tap_code(KC_DOWN);
-            tap_code(KC_DOWN);
-            tap_code(KC_DOWN);
-            tap_code(KC_DOWN);
-            tap_code(KC_DOWN);
-            tap_code(KC_DOWN);
-            tap_code(KC_DOWN);
-            tap_code(KC_DOWN);
-        }
     } else if (get_highest_layer(layer_state|default_layer_state) > 2) {
         if (clockwise) {
             tap_code(KC_UP);
@@ -249,7 +235,6 @@ bool encoder_update_user(uint8_t index, bool clockwise) {
             tap_code(KC_TAB);
             unregister_code(KC_LSFT);
         }
-        alt_tab_timer = timer_read();
     } else if (index == 0) {
         register_code(KC_LCTL);
         is_ctrl_tab_active = true;
@@ -260,7 +245,6 @@ bool encoder_update_user(uint8_t index, bool clockwise) {
             tap_code(KC_TAB);
             unregister_code(KC_LSFT);
         }
-        ctrl_tab_timer = timer_read();
     }
     return false;
 };
@@ -303,6 +287,18 @@ bool remember_last_key_user(uint16_t keycode, keyrecord_t* record, uint8_t* reme
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
+        case LT(3,KC_ENTER):
+            if (is_alt_tab_active) {
+                unregister_code(KC_LALT);
+                is_alt_tab_active = false;
+                return false;
+            }
+            if (is_ctrl_tab_active) {
+                unregister_code(KC_LCTL);
+                is_ctrl_tab_active = false;
+                return false;
+            }
+            break;
         case LT(5,KC_F13):
             if (record->tap.count) {
                 alt_repeat_key_invoke(&record->event);
@@ -315,6 +311,15 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 return false;
             }
             break;
+    }
+
+    if (is_alt_tab_active) {
+        unregister_code(KC_LALT);
+        is_alt_tab_active = false;
+    }
+    if (is_ctrl_tab_active) {
+        unregister_code(KC_LCTL);
+        is_ctrl_tab_active = false;
     }
 
     return true;
