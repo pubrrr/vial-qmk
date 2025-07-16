@@ -5,6 +5,18 @@
         "cols": 6
     },
     "lighting": "vialrgb",
+    "customKeycodes": [
+        {
+            "name": "npm",
+            "title": "npm alt repeat completion",
+            "shortName": "C_NPM"
+        },
+        {
+            "name": "QU",
+            "title": "QU",
+            "shortName": "C_QU"
+        }
+    ],
     "layouts": {
         "keymap": [
             [

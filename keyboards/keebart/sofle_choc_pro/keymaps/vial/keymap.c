@@ -33,6 +33,11 @@ bool osm_shift_active = false;
 bool is_alt_tab_active = false;
 bool is_ctrl_tab_active = false;
 
+enum custom_keycode {
+    C_NPM = QK_KB_0,
+    C_QU,
+};
+
 void oneshot_mods_changed_user(uint8_t mods) {
     if (mods & MOD_MASK_SHIFT) {
         osm_shift_active = true;
@@ -174,6 +179,7 @@ bool caps_word_press_user(uint16_t keycode) {
         // Keycodes that continue Caps Word, with shift applied.
         case KC_A ... KC_Z:
         case KC_MINS:
+        case C_QU:
         case KC_SLASH: // `-` on German keyboard
             add_weak_mods(MOD_BIT(KC_LSFT));  // Apply shift to next key.
             return true;
@@ -193,15 +199,7 @@ bool caps_word_press_user(uint16_t keycode) {
 /* ------------- rotary encoder stuff ---------------- */
 // https://www.reddit.com/r/MechanicalKeyboards/comments/s52e51/added_alttab_to_my_rotary_encoder_on_my_qmk_board/
 bool encoder_update_user(uint8_t index, bool clockwise) {
-    if (get_highest_layer(layer_state|default_layer_state) == 5) {
-        register_code(KC_LALT);
-        if (clockwise) {
-            tap_code(KC_RIGHT);
-        } else {
-            tap_code(KC_LEFT);
-        }
-        unregister_code(KC_LALT);
-    } else if (get_highest_layer(layer_state|default_layer_state) > 2) {
+    if (get_highest_layer(layer_state|default_layer_state) > 2) {
         if (clockwise) {
             tap_code(KC_UP);
             tap_code(KC_UP);
@@ -286,17 +284,31 @@ bool remember_last_key_user(uint16_t keycode, keyrecord_t* record, uint8_t* reme
 }
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+    if (is_alt_tab_active) {
+        unregister_code(KC_LALT);
+        is_alt_tab_active = false;
+        return false;
+    }
+    if (is_ctrl_tab_active) {
+        unregister_code(KC_LCTL);
+        is_ctrl_tab_active = false;
+        return false;
+    }
+
     switch (keycode) {
-        case LT(3,KC_ENTER):
-            if (is_alt_tab_active) {
-                unregister_code(KC_LALT);
-                is_alt_tab_active = false;
-                return false;
+        case C_NPM:
+            if (record->event.pressed) {
+                SEND_STRING("pm ");
             }
-            if (is_ctrl_tab_active) {
-                unregister_code(KC_LCTL);
-                is_ctrl_tab_active = false;
-                return false;
+            break;
+        case C_QU:
+            if (record->event.pressed) {
+                if (is_caps_word_on()) {
+                    SEND_STRING(SS_LSFT("qu"));
+                } else {
+                    tap_code(KC_Q);
+                    tap_code(KC_U);
+                }
             }
             break;
         case LT(5,KC_F13):
@@ -311,15 +323,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 return false;
             }
             break;
-    }
-
-    if (is_alt_tab_active) {
-        unregister_code(KC_LALT);
-        is_alt_tab_active = false;
-    }
-    if (is_ctrl_tab_active) {
-        unregister_code(KC_LCTL);
-        is_ctrl_tab_active = false;
     }
 
     return true;
