@@ -296,6 +296,12 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     }
 
     switch (keycode) {
+        case KC_ESC:
+            if (osm_shift_active) {
+                clear_oneshot_mods();
+                return false;
+            }
+            break;
         case C_NPM:
             if (record->event.pressed) {
                 SEND_STRING("pm ");
