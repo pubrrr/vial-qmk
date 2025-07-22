@@ -31,7 +31,6 @@ const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][NUM_DIRECTIONS] = {
 bool osm_shift_active = false;
 
 bool is_alt_tab_active = false;
-bool is_ctrl_tab_active = false;
 
 enum custom_keycode {
     C_NPM = QK_KB_0,
@@ -105,19 +104,6 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
                 rgb_matrix_set_color(34, RGB_GREEN);
                 rgb_matrix_set_color(35, RGB_GREEN);
                 rgb_matrix_set_color(36, RGB_GREEN);
-                return false;
-            }
-            if (is_ctrl_tab_active) {
-                rgb_matrix_set_color(3, RGB_RED);
-                rgb_matrix_set_color(4, RGB_BLUE);
-                rgb_matrix_set_color(5, RGB_BLUE);
-                rgb_matrix_set_color(6, RGB_BLUE);
-
-                rgb_matrix_set_color(33, RGB_RED);
-                rgb_matrix_set_color(34, RGB_BLUE);
-                rgb_matrix_set_color(35, RGB_BLUE);
-                rgb_matrix_set_color(36, RGB_BLUE);
-                return false;
             }
             return false;
     }
@@ -156,18 +142,6 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
         rgb_matrix_set_color(34, RGB_GREEN);
         rgb_matrix_set_color(35, RGB_GREEN);
         rgb_matrix_set_color(36, RGB_GREEN);
-        return false;
-    }
-    if (is_ctrl_tab_active) {
-        rgb_matrix_set_color(3, RGB_RED);
-        rgb_matrix_set_color(4, RGB_BLUE);
-        rgb_matrix_set_color(5, RGB_BLUE);
-        rgb_matrix_set_color(6, RGB_BLUE);
-
-        rgb_matrix_set_color(33, RGB_RED);
-        rgb_matrix_set_color(34, RGB_BLUE);
-        rgb_matrix_set_color(35, RGB_BLUE);
-        rgb_matrix_set_color(36, RGB_BLUE);
         return false;
     }
     return false;
@@ -233,7 +207,6 @@ bool encoder_update_user(uint8_t index, bool clockwise) {
         }
     } else if (index == 0) {
         register_code(KC_LCTL);
-        is_ctrl_tab_active = true;
         if (clockwise) {
             tap_code(KC_TAB);
         } else {
@@ -241,6 +214,7 @@ bool encoder_update_user(uint8_t index, bool clockwise) {
             tap_code(KC_TAB);
             unregister_code(KC_LSFT);
         }
+        unregister_code(KC_LCTL);
     }
     return false;
 };
@@ -285,11 +259,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     if (is_alt_tab_active) {
         unregister_code(KC_LALT);
         is_alt_tab_active = false;
-        return false;
-    }
-    if (is_ctrl_tab_active) {
-        unregister_code(KC_LCTL);
-        is_ctrl_tab_active = false;
         return false;
     }
 
