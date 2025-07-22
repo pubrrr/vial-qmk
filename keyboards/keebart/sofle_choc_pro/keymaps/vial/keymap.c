@@ -35,7 +35,6 @@ bool is_ctrl_tab_active = false;
 
 enum custom_keycode {
     C_NPM = QK_KB_0,
-    C_QU,
 };
 
 void oneshot_mods_changed_user(uint8_t mods) {
@@ -179,7 +178,6 @@ bool caps_word_press_user(uint16_t keycode) {
         // Keycodes that continue Caps Word, with shift applied.
         case KC_A ... KC_Z:
         case KC_MINS:
-        case C_QU:
         case KC_SLASH: // `-` on German keyboard
             add_weak_mods(MOD_BIT(KC_LSFT));  // Apply shift to next key.
             return true;
@@ -307,16 +305,22 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 SEND_STRING("pm ");
             }
             break;
-        case C_QU:
-            if (record->event.pressed) {
+        case HYPR_T(KC_Q):
+            if (record->tap.count && record->event.pressed) {
                 if (is_caps_word_on()) {
                     SEND_STRING(SS_LSFT("qu"));
                 } else {
                     tap_code(KC_Q);
                     tap_code(KC_U);
                 }
+            } else if (record->event.pressed) {
+                if (is_caps_word_on()) {
+                    SEND_STRING(SS_LSFT("q"));
+                } else {
+                    tap_code(KC_Q);
+                }
             }
-            break;
+            return false;
         case LT(5,KC_F13):
             if (record->tap.count) {
                 alt_repeat_key_invoke(&record->event);
