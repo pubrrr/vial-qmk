@@ -1,0 +1,1 @@
+RGB_MATRIX_DRIVER = snled27351_spi
