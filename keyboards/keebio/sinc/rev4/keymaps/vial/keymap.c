@@ -36,6 +36,8 @@ const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][NUM_DIRECTIONS] = {
 #endif
 
 bool osm_shift_active = false;
+bool osm_ctl_active = false;
+bool osm_ralt_active = false;
 
 bool is_alt_tab_active = false;
 
@@ -45,13 +47,25 @@ void oneshot_mods_changed_user(uint8_t mods) {
     } else {
         osm_shift_active = false;
     }
+    if (mods & MOD_MASK_CTRL) {
+        osm_ctl_active = true;
+    } else {
+        osm_ctl_active = false;
+    }
+    if (mods & MOD_BIT(KC_RALT)) {
+        osm_ralt_active = true;
+    } else {
+        osm_ralt_active = false;
+    }
 }
 
-int color_value = 50;
+int color_value = 60;
 
-bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
+void layer_indicator(void) {
     hsv_t hsv = {128, 255, 30}; // cyan
     switch(get_highest_layer(layer_state|default_layer_state)) {
+        case 0:
+            return;
         case 1:
             hsv = (hsv_t){191, 255, 130}; // purple
             break;
@@ -81,48 +95,72 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
     hsv.v = color_value;
     rgb_t rgb = hsv_to_rgb(hsv);
     rgb_matrix_set_color_all(rgb.r, rgb.g, rgb.b);
+}
+
+bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
+    layer_indicator();
 
     if (osm_shift_active) {
-        hsv_t c_hsv = (hsv_t){RGB_WHITE};
+        hsv_t c_hsv = (hsv_t){HSV_GREEN};
         c_hsv.v = color_value;
         rgb_t c_rgb = hsv_to_rgb(c_hsv);
 
-        rgb_matrix_set_color(22, c_rgb.r, c_rgb.g, c_rgb.b);
-        rgb_matrix_set_color(37, c_rgb.r, c_rgb.g, c_rgb.b);
-        rgb_matrix_set_color(53, c_rgb.r, c_rgb.g, c_rgb.b);
-        rgb_matrix_set_color(68, c_rgb.r, c_rgb.g, c_rgb.b);
-        rgb_matrix_set_color(69, c_rgb.r, c_rgb.g, c_rgb.b);
-        rgb_matrix_set_color(54, c_rgb.r, c_rgb.g, c_rgb.b);
-        rgb_matrix_set_color(38, c_rgb.r, c_rgb.g, c_rgb.b);
-        rgb_matrix_set_color(23, c_rgb.r, c_rgb.g, c_rgb.b);
+        rgb_matrix_set_color(29, c_rgb.r, c_rgb.g, c_rgb.b);
+        rgb_matrix_set_color(30, c_rgb.r, c_rgb.g, c_rgb.b);
+
+        rgb_matrix_set_color(98, c_rgb.r, c_rgb.g, c_rgb.b);
+        rgb_matrix_set_color(99, c_rgb.r, c_rgb.g, c_rgb.b);
+    }
+    if (osm_ctl_active) {
+        hsv_t c_hsv = (hsv_t){HSV_GREEN};
+        c_hsv.v = color_value;
+        rgb_t c_rgb = hsv_to_rgb(c_hsv);
+
+        rgb_matrix_set_color(43, c_rgb.r, c_rgb.g, c_rgb.b);
+        rgb_matrix_set_color(44, c_rgb.r, c_rgb.g, c_rgb.b);
+        rgb_matrix_set_color(111, c_rgb.r, c_rgb.g, c_rgb.b);
+    }
+    if (osm_ralt_active) {
+        hsv_t c_hsv = (hsv_t){HSV_GREEN};
+        c_hsv.v = color_value;
+        rgb_t c_rgb = hsv_to_rgb(c_hsv);
+
+        rgb_matrix_set_color(109, c_rgb.r, c_rgb.g, c_rgb.b);
+        rgb_matrix_set_color(110, c_rgb.r, c_rgb.g, c_rgb.b);
     }
     if (is_caps_word_on()) {
-        hsv_t c_hsv = (hsv_t){RGB_MAGENTA};
+        hsv_t c_hsv = (hsv_t){HSV_MAGENTA};
         c_hsv.v = color_value;
         rgb_t c_rgb = hsv_to_rgb(c_hsv);
 
-        rgb_matrix_set_color(22, c_rgb.r, c_rgb.g, c_rgb.b);
-        rgb_matrix_set_color(37, c_rgb.r, c_rgb.g, c_rgb.b);
-        rgb_matrix_set_color(53, c_rgb.r, c_rgb.g, c_rgb.b);
-        rgb_matrix_set_color(68, c_rgb.r, c_rgb.g, c_rgb.b);
-        rgb_matrix_set_color(69, c_rgb.r, c_rgb.g, c_rgb.b);
-        rgb_matrix_set_color(54, c_rgb.r, c_rgb.g, c_rgb.b);
-        rgb_matrix_set_color(38, c_rgb.r, c_rgb.g, c_rgb.b);
-        rgb_matrix_set_color(23, c_rgb.r, c_rgb.g, c_rgb.b);
-        return false;
+        rgb_matrix_set_color(29, c_rgb.r, c_rgb.g, c_rgb.b);
+        rgb_matrix_set_color(30, c_rgb.r, c_rgb.g, c_rgb.b);
+        rgb_matrix_set_color(31, c_rgb.r, c_rgb.g, c_rgb.b);
+        rgb_matrix_set_color(32, c_rgb.r, c_rgb.g, c_rgb.b);
+        rgb_matrix_set_color(33, c_rgb.r, c_rgb.g, c_rgb.b);
+        rgb_matrix_set_color(35, c_rgb.r, c_rgb.g, c_rgb.b);
+
+        rgb_matrix_set_color(98, c_rgb.r, c_rgb.g, c_rgb.b);
+        rgb_matrix_set_color(99, c_rgb.r, c_rgb.g, c_rgb.b);
+        rgb_matrix_set_color(100, c_rgb.r, c_rgb.g, c_rgb.b);
+        rgb_matrix_set_color(101, c_rgb.r, c_rgb.g, c_rgb.b);
+        rgb_matrix_set_color(102, c_rgb.r, c_rgb.g, c_rgb.b);
+        rgb_matrix_set_color(103, c_rgb.r, c_rgb.g, c_rgb.b);
     }
     if (is_alt_tab_active) {
         rgb_matrix_set_color(3, RGB_GREEN);
-        rgb_matrix_set_color(4, RGB_GREEN);
         rgb_matrix_set_color(5, RGB_GREEN);
         rgb_matrix_set_color(6, RGB_RED);
 
         rgb_matrix_set_color(7, RGB_RED);
-        rgb_matrix_set_color(8, RGB_GREEN);
         rgb_matrix_set_color(9, RGB_GREEN);
-        rgb_matrix_set_color(10, RGB_GREEN);
-        return false;
     }
+
+    // disable LDS that are between keys
+    rgb_matrix_set_color(37, RGB_OFF);
+    rgb_matrix_set_color(38, RGB_OFF);
+    rgb_matrix_set_color(106, RGB_OFF);
+
     return false;
 }
 
