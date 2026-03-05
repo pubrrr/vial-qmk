@@ -23,9 +23,190 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   )
 };
 
+enum {
+    FIRST_ENCODER_LEFT = QK_USER,
+    FIRST_ENCODER_RIGHT
+};
+
 #ifdef ENCODER_MAP_ENABLE
 const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][NUM_DIRECTIONS] = {
-    [0] = { ENCODER_CCW_CW(KC_VOLU, KC_VOLD), ENCODER_CCW_CW(KC_PGUP, KC_PGDN) },
-    [1] = { ENCODER_CCW_CW(RGB_MOD, RGB_RMOD), ENCODER_CCW_CW(KC_MNXT, KC_MPRV) }
+    [0] = { ENCODER_CCW_CW(FIRST_ENCODER_RIGHT, FIRST_ENCODER_LEFT), ENCODER_CCW_CW(KC_VOLU, KC_VOLD) },
+    [1] = { ENCODER_CCW_CW(FIRST_ENCODER_RIGHT, FIRST_ENCODER_LEFT), ENCODER_CCW_CW(KC_VOLU, KC_VOLD) },
 };
 #endif
+
+bool osm_shift_active = false;
+
+bool is_alt_tab_active = false;
+
+void oneshot_mods_changed_user(uint8_t mods) {
+    if (mods & MOD_MASK_SHIFT) {
+        osm_shift_active = true;
+    } else {
+        osm_shift_active = false;
+    }
+}
+
+int color_value = 50;
+
+bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
+    hsv_t hsv = {128, 255, 30}; // cyan
+    switch(get_highest_layer(layer_state|default_layer_state)) {
+        case 1:
+            hsv = (hsv_t){191, 255, 130}; // purple
+            break;
+        case 2:
+            hsv = (hsv_t){85, 255, 130}; // green
+            break;
+        case 3:
+            hsv = (hsv_t){36, 255, 130}; // gold
+            break;
+        case 4:
+            hsv = (hsv_t){170, 255, 130}; // blue
+            break;
+        case 5:
+            hsv = (hsv_t){0, 255, 130}; // red
+            break;
+        case 6:
+            hsv = (hsv_t){191, 255, 130}; // purple
+            break;
+        case 7:
+            hsv = (hsv_t){201, 255, 130}; // magenta
+            break;
+        case 8:
+            hsv = (hsv_t){148, 255, 130}; // azure
+            break;
+    }
+
+    hsv.v = color_value;
+    rgb_t rgb = hsv_to_rgb(hsv);
+    rgb_matrix_set_color_all(rgb.r, rgb.g, rgb.b);
+
+    if (osm_shift_active) {
+        hsv_t c_hsv = (hsv_t){RGB_WHITE};
+        c_hsv.v = color_value;
+        rgb_t c_rgb = hsv_to_rgb(c_hsv);
+
+        rgb_matrix_set_color(22, c_rgb.r, c_rgb.g, c_rgb.b);
+        rgb_matrix_set_color(37, c_rgb.r, c_rgb.g, c_rgb.b);
+        rgb_matrix_set_color(53, c_rgb.r, c_rgb.g, c_rgb.b);
+        rgb_matrix_set_color(68, c_rgb.r, c_rgb.g, c_rgb.b);
+        rgb_matrix_set_color(69, c_rgb.r, c_rgb.g, c_rgb.b);
+        rgb_matrix_set_color(54, c_rgb.r, c_rgb.g, c_rgb.b);
+        rgb_matrix_set_color(38, c_rgb.r, c_rgb.g, c_rgb.b);
+        rgb_matrix_set_color(23, c_rgb.r, c_rgb.g, c_rgb.b);
+    }
+    if (is_caps_word_on()) {
+        hsv_t c_hsv = (hsv_t){RGB_MAGENTA};
+        c_hsv.v = color_value;
+        rgb_t c_rgb = hsv_to_rgb(c_hsv);
+
+        rgb_matrix_set_color(22, c_rgb.r, c_rgb.g, c_rgb.b);
+        rgb_matrix_set_color(37, c_rgb.r, c_rgb.g, c_rgb.b);
+        rgb_matrix_set_color(53, c_rgb.r, c_rgb.g, c_rgb.b);
+        rgb_matrix_set_color(68, c_rgb.r, c_rgb.g, c_rgb.b);
+        rgb_matrix_set_color(69, c_rgb.r, c_rgb.g, c_rgb.b);
+        rgb_matrix_set_color(54, c_rgb.r, c_rgb.g, c_rgb.b);
+        rgb_matrix_set_color(38, c_rgb.r, c_rgb.g, c_rgb.b);
+        rgb_matrix_set_color(23, c_rgb.r, c_rgb.g, c_rgb.b);
+        return false;
+    }
+    if (is_alt_tab_active) {
+        rgb_matrix_set_color(3, RGB_GREEN);
+        rgb_matrix_set_color(4, RGB_GREEN);
+        rgb_matrix_set_color(5, RGB_GREEN);
+        rgb_matrix_set_color(6, RGB_RED);
+
+        rgb_matrix_set_color(7, RGB_RED);
+        rgb_matrix_set_color(8, RGB_GREEN);
+        rgb_matrix_set_color(9, RGB_GREEN);
+        rgb_matrix_set_color(10, RGB_GREEN);
+        return false;
+    }
+    return false;
+}
+
+bool caps_word_press_user(uint16_t keycode) {
+    switch (keycode) {
+        // Keycodes that continue Caps Word, with shift applied.
+        case KC_A ... KC_Z:
+        case KC_MINS:
+        case KC_SLASH: // `-` on German keyboard
+            add_weak_mods(MOD_BIT(KC_LSFT));  // Apply shift to next key.
+            return true;
+
+            // Keycodes that continue Caps Word, without shifting.
+        case KC_1 ... KC_0:
+        case KC_BSPC:
+        case KC_DEL:
+        case KC_UNDS:
+            return true;
+
+        default:
+            return false;  // Deactivate Caps Word.
+    }
+}
+
+bool skip_next = false; // One tick on the rotary encoder somehow activated twice -> ignore the second one
+
+bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+    switch (keycode) {
+        case FIRST_ENCODER_LEFT:
+            if (skip_next) {
+                skip_next = false;
+                return false;
+            }
+            skip_next = true;
+
+            register_code(KC_LALT);
+            is_alt_tab_active = true;
+            register_code(KC_LSFT);
+            tap_code(KC_TAB);
+            unregister_code(KC_LSFT);
+            return false;
+        case FIRST_ENCODER_RIGHT:
+            if (skip_next) {
+                skip_next = false;
+                return false;
+            }
+            skip_next = true;
+
+            register_code(KC_LALT);
+            is_alt_tab_active = true;
+            tap_code(KC_TAB);
+            return false;
+    }
+
+    if (is_alt_tab_active) {
+        unregister_code(KC_LALT);
+        is_alt_tab_active = false;
+        return false;
+    }
+
+    switch (keycode) {
+        case KC_ESC:
+            if (osm_shift_active) {
+                clear_oneshot_mods();
+                return false;
+            }
+            break;
+//        case HYPR_T(KC_Q): // hack to make the "qu" macro work for caps word - not sure whether still necessary
+//            if (record->tap.count && record->event.pressed) {
+//                if (is_caps_word_on()) {
+//                    SEND_STRING(SS_LSFT("qu"));
+//                } else {
+//                    tap_code(KC_Q);
+//                    tap_code(KC_U);
+//                }
+//            } else if (record->event.pressed) {
+//                if (is_caps_word_on()) {
+//                    SEND_STRING(SS_LSFT("q"));
+//                } else {
+//                    tap_code(KC_Q);
+//                }
+//            }
+//            return false;
+    }
+
+    return true;
+}
