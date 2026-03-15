@@ -196,6 +196,15 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             }
             skip_next = true;
 
+            if (IS_LAYER_ON(1)) {
+                register_code(KC_LCTL);
+                register_code(KC_LSFT);
+                tap_code(KC_TAB);
+                unregister_code(KC_LSFT);
+                unregister_code(KC_LCTL);
+                return false;
+            }
+
             register_code(KC_LALT);
             is_alt_tab_active = true;
             register_code(KC_LSFT);
@@ -208,6 +217,13 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 return false;
             }
             skip_next = true;
+
+            if (IS_LAYER_ON(1)) {
+                register_code(KC_LCTL);
+                tap_code(KC_TAB);
+                unregister_code(KC_LCTL);
+                return false;
+            }
 
             register_code(KC_LALT);
             is_alt_tab_active = true;
